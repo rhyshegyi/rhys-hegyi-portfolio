@@ -313,6 +313,27 @@ p {
     margin-bottom: 0.5rem;
 }
 
+/* Education logos */
+.edu-school {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.edu-school h4 {
+    margin-bottom: 0;
+}
+
+.edu-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    padding: 3px;
+}
+
 /* Skills Grid */
 .skills-grid {
     display: grid;
@@ -360,6 +381,22 @@ p {
 .project-card {
     position: relative;
     overflow: hidden;
+}
+
+.project-image {
+    width: calc(100% + 5rem);
+    height: 240px;
+    margin: -2.5rem -2.5rem 1.75rem;
+    border-bottom: 1px solid var(--glass-border);
+    object-fit: cover;
+    object-position: 50% 50%;
+    background: rgba(255, 255, 255, 0.03);
+    display: block;
+}
+
+.project-image[src=""],
+.project-image:not([src]) {
+    display: none;
 }
 
 .tech-stack {
