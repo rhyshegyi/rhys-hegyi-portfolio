@@ -139,6 +139,19 @@ p {
     padding-top: 5rem;
 }
 
+.hero-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    object-fit: cover;
+    object-position: 50% 25%;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    margin-bottom: 1.75rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 .hero-title {
     font-size: clamp(3rem, 8vw, 5rem);
     font-weight: 700;
