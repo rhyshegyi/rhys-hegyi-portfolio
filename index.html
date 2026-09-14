@@ -207,15 +207,15 @@
                         <ul class="project-summary">
                             <li>Pulled 77 seasons (1950–2026, ~42k rows) of F1 race, qualifying and standings data from the Jolpica API to create a personal one-stop shop for keeping track during an F1 season.</li>
                             <li>Built an automated daily pipeline landing raw data in Databricks Delta Lake, transformed through a layered dbt star
-                            schema (4 dimensions, 3 facts), backed by 163 Python tests and 110+ dbt tests</li>
+                            schema (4 dimensions, 8 facts), backed by 259 Python tests and dbt tests on every layer</li>
                             <li>Made a multi-page PowerBI dashboard using DAX measures to visualise such things as season overviews, race
                             weekend breakdowns, teammate head-to-heads and historic driver records.</li>
                         </ul>
 
                         <ul class="project-stats">
                             <li><strong>~42k</strong> source rows ingested</li>
-                            <li><strong>163</strong> Python tests</li>
-                            <li><strong>110+</strong> dbt tests</li>
+                            <li><strong>259</strong> Python tests</li>
+                            <li><strong>12</strong> star-schema tables (4 dims, 8 facts)</li>
                             <li><strong>Daily</strong> automated refresh</li>
                         </ul>
 
@@ -232,14 +232,19 @@
                             <summary>Read the full writeup</summary>
                             <div class="case-study-body">
                                 <h4>Data</h4>
-                                <p>The Jolpica F1 API, the actively maintained successor to Ergast (which shut down in 2024). It covers races, results, qualifying and standings. Data flows from raw Delta tables through dbt staging (parse and cast), then intermediate models (joins, rolling form), then star-schema marts (4 dimensions, 3 facts).</p>
+                                <p>The Jolpica F1 API, the actively maintained successor to Ergast (which shut down in 2024). Nine endpoints cover races, results, qualifying, sprints, drivers, both championships, lap-by-lap positions and pit stops. Each API page lands untouched as a raw Delta table row, then dbt staging parses and casts it, intermediate models handle joins, rolling form, teammate pairings and career records, and the marts form a star schema of 4 dimensions and 8 facts. GitHub Actions runs daily: it checks for a newly completed race and rebuilds dbt only when something new has loaded.</p>
 
                                 <h4>Key decisions</h4>
                                 <ul>
                                     <li><strong>The raw grain is (season, API page), not (season, race).</strong> The API paginates over result rows, so one page can span several races. Keying by race would have been silently wrong.</li>
-                                    <li><strong>Championship standings come from the API instead of summed points.</strong> From 1950 to 1990 only a driver's best N results counted, so summing raw points names the wrong champion in real cases. In 1988 Senna won the title even though Prost scored more total points.</li>
-                                    <li><strong>I added sprint data back in after the data proved me wrong.</strong> I first left it out as unnecessary, but without it the calculated points disagreed with official standings for every season since 2021.</li>
-                                    <li><strong>The marts are a star schema because Power BI is the consumer.</strong> I shaped the transformation layer around its downstream tool on purpose instead of building it generically.</li>
+                                    <li><strong>Championship standings come from the API instead of summed points.</strong> From 1950 to 1990 only a driver's best N results counted, so summing raw points names the wrong champion in real cases. In 1988 Prost outscored Senna 105 to 94, but Senna holds the title. The mart shows championship points and points scored side by side, so the difference is visible instead of hidden.</li>
+                                    <li><strong>I added sprint data back in after the data proved me wrong.</strong> I first left it out as unnecessary, but without it the calculated points disagreed with official standings for every season since 2021, by exactly the sprint points scales. A test now checks the two agree for every season from 1991.</li>
+                                    <li><strong>The marts are a star schema because Power BI is the consumer.</strong> I shaped the transformation layer around its downstream tool on purpose. Power BI-specific choices live in dbt: a single integer race key, because relationships can't join on two columns, and a relationship test on every foreign key, because an orphaned key shows up silently as "(Blank)" instead of erroring.</li>
+                                    <li><strong>Teammates are compared in the last qualifying session both set a time in, using the median gap as a percentage.</strong> Comparing best laps would pit a Q1 exit against a teammate's Q3 lap on a grippier track. Median, because one aborted lap wrecks an average: Verstappen's 2023 mean gap to Pérez is 4.2%, but the median is 0.6%. Percent, because a tenth at Monaco is a bigger margin than a tenth at Spa.</li>
+                                    <li><strong>Team colours live in a tested dbt seed, not the report.</strong> The source has no colours, so a versioned seed gives each constructor a background and a readable text colour. The build fails if a team on the teammate page has no colour, so a new team can't slip in as grey.</li>
+                                    <li><strong>Drivers from different eras are compared with modern points per start.</strong> Career totals favour modern drivers, who race 24 Grands Prix a season against 7 or 8 in the 1950s, when a win was worth 8 points. Rescoring every result since 1950 with today's 25-18-15 system removes points-system changes, and dividing by starts removes season length. It can't remove the car. With a 50-start minimum, Fangio leads on 16.8, ahead of Hamilton (13.86) and Verstappen (13.84).</li>
+                                    <li><strong>Poles come from grid slot 1, not qualifying P1.</strong> Qualifying data only exists from 1994, so counting qualifying P1 gave every earlier season zero poles. Grid slot 1 covers every race since 1950 and matches the official career counts: Hamilton 104, Schumacher 68, Senna 65, Fangio 29.</li>
+                                    <li><strong>Laps and pit stops load race by race.</strong> Jolpica rejects season-wide lap requests, and a season of laps is around 270 pages. Loading each race separately, and recording progress after every race, keeps the daily run to about 13 requests per Grand Prix and lets an interrupted backfill resume at the next race.</li>
                                 </ul>
 
                                 <h4>Bugs I found and fixed</h4>
@@ -247,6 +252,9 @@
                                     <li>Until the mid-1960s, F1 rules allowed shared drives, where a retiring driver took over a teammate's car. That produces two legitimate result rows for one driver in one race, which broke an early uniqueness assumption.</li>
                                     <li>A handful of 1960s rows store the literal string <code>'None'</code> as a car number, which would silently break a hard type cast across the whole table. I fixed it with a soft cast plus a monitored test.</li>
                                     <li>API paths use camelCase but the project uses snake_case. That mismatch made two endpoints silently return nothing.</li>
+                                    <li>The drivers endpoint has no round numbers, so its watermark was saved as empty and it reloaded on every scheduled run. The watermark now records the round the load was current as of, and repeated runs write nothing.</li>
+                                    <li>The driver form model summed race points only, so every career and rolling total missed sprint points. A test against the published standings failed on exactly 71 driver-seasons, matching the sprint counts.</li>
+                                    <li>The champion flag only checked for first place in the standings, so Antonelli already had the 2026 title while leading with nine rounds left. A season now only has a champion once its final race has run.</li>
                                 </ul>
 
                                 <h4>Verification</h4>
@@ -255,8 +263,14 @@
                                     <li>1988 championship: Senna 90, Prost 87, with Prost's 18 dropped points correctly excluded.</li>
                                     <li>2021 title race including sprint points: Verstappen 395.5, Hamilton 387.5.</li>
                                     <li>Career title counts: Hamilton and Schumacher both on 7.</li>
+                                    <li>2024 teammate qualifying: Russell beat Hamilton 19–5, with a median gap of -0.190 s (-0.225%).</li>
+                                    <li>All-time records: Verstappen is the youngest winner at 18 years 228 days and has the most consecutive wins at 10, Schumacher has 19 podiums in a row, and Fagioli is the oldest winner at 53 years 22 days.</li>
                                 </ul>
-                                <p>Ingestion is covered by 163 offline Python tests against recorded API fixtures, plus 110+ dbt tests, and the code is <code>ruff</code> clean. The Power BI report has three pages: Season Overview, Race Weekend and Best Results. Power BI's free tier can't publish a public link, so the repo includes screenshots and the <code>.pbix</code> file.</p>
+
+                                <h4>Testing and the report</h4>
+                                <p>Ingestion is covered by 259 offline Python tests against recorded API fixtures, and the code is <code>ruff</code> clean. The full dbt build passes except for two warnings I kept on purpose. One flags the <code>'None'</code> car numbers. The other flags races where the lap data and the results disagree on laps completed: at the 2026 British Grand Prix, Sainz has 51 laps in the results but 52 in the lap data.</p>
+                                <p>I write tests first, then break the model on purpose to confirm they fail. That caught three Records tests that only passed against empty stubs, because they took their list of races from the model they were testing. Once they took races from the source instead, they failed properly.</p>
+                                <p>The Power BI report has four pages: Season Overview, Race Weekend, Teammate Head2Head and Records. Two extensions are in progress. Records is being rebuilt as an all-time hub with a career leaderboard, the era-adjusted score, streaks and age records. Race Weekend is getting a lap-by-lap position chart and a pit stops table. Power BI's free tier can't publish a public link, so the repo includes screenshots and the <code>.pbix</code> file.</p>
                             </div>
                         </details>
 
