@@ -130,9 +130,13 @@
                     <img class="project-image" src="assets/projects/fpl_optimizer.png" alt="Screenshot of Fantasy Premier League Squad Optimizer"
                         width="1200" height="675" loading="lazy" decoding="async">
                     <div class="project-content">
-                        <h3>FPL Squad Optimizer</h3>
-                        <p class="tech-stack">Python | LightGBM | PuLP | SQLite | FastAPI | React | TypeScript | Docker | GitHub Actions</p>
-                        <p>Fantasy Premier League squad and transfer decisions are usually made on gut feel. I built a tool that answers two questions with data: what is the optimal 15-man squad, and given an existing squad, what is the best transfer this week? It respects FPL's real constraints: a £100m budget, a 2/5/5/3 squad shape, a maximum of 3 players per club, and -4 point transfer hits.</p>
+                        <h3>Fantasy Premier League Squad Optimiser</h3>
+                        <p class="tech-stack">Python | LightGBM | PuLP | FastAPI | React | TypeScript | Docker | GitHub Actions</p>
+                        <ul class="project-summary">
+                            <li>Built a tool using historical FPL API data (player stats, prices, fixtures) to recommend an evidence-based best team and best transfers each gameweek.</li>
+                            <li>Built and deployed a full-stack app combining a LightGBM points predictor with a PuLP linear programming optimiser, automated via GitHub Actions and served through a FastAPI + React app on Fly.io.</li>
+                            <li>Backtested across three seasons, showing a statistically significant improvement in player ranking quality over a naive baseline (p &lt; 0.0001).</li>
+                        </ul>
 
                         <ul class="project-stats">
                             <li><strong>+175</strong> points vs. a pick-once baseline</li>
@@ -200,7 +204,11 @@
                     <div class="project-content">
                         <h3>F1 Data Hub</h3>
                         <p class="tech-stack">Python | Databricks (Delta Lake) | dbt | SQL | Power BI | DAX | GitHub Actions | pytest</p>
-                        <p>A daily, API-driven data pipeline covering 77 Formula 1 seasons (1950–2026). I built it in response to interview feedback: a recruiter wanted evidence of <em>why</em> data architecture layers exist, not just proof that the tools had been used, and pushed me to move from static CSVs to a live pipeline. Raw API data lands untouched in Databricks, dbt reshapes it into a star schema, and a 3-page Power BI report sits on top.</p>
+                        <ul class="project-summary">
+                            <li>Pulled 77 seasons (1950–2026, ~42k rows) of F1 race, qualifying and standings data from the Jolpica API to create a personal one-stop shop for keeping track during an F1 season.</li>
+                            <li>Built an automated daily pipeline landing raw data in Databricks Delta Lake, transformed through a layered dbt star schema (4 dimensions, 3 facts), and surfaced in a 3-page Power BI report with DAX measures.</li>
+                            <li>Verified outputs against real F1 history (e.g. the 1988 championship result) and caught genuine data bugs along the way, backed by 163 Python tests and 110+ dbt tests.</li>
+                        </ul>
 
                         <ul class="project-stats">
                             <li><strong>~42k</strong> source rows ingested</li>

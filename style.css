@@ -467,6 +467,16 @@ p {
     object-position: 50% 0%;
 }
 
+.project-summary {
+    color: var(--text-secondary);
+    padding-left: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.project-summary li {
+    margin-bottom: 0.5rem;
+}
+
 .project-stats {
     list-style: none;
     display: grid;
