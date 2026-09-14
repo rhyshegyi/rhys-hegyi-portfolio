@@ -318,19 +318,6 @@ p {
     margin-top: 0.75rem;
 }
 
-.section-note {
-    margin: 2rem 0 0 1rem;
-    font-size: 0.95rem;
-}
-
-.section-note a {
-    color: var(--text-primary);
-}
-
-.section-note a:hover {
-    color: var(--accent-color);
-}
-
 /* Education logos */
 .edu-school {
     display: flex;
