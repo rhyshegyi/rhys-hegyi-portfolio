@@ -314,6 +314,23 @@ p {
     margin-bottom: 0.5rem;
 }
 
+.timeline-content .edu-date {
+    margin-top: 0.75rem;
+}
+
+.section-note {
+    margin: 2rem 0 0 1rem;
+    font-size: 0.95rem;
+}
+
+.section-note a {
+    color: var(--text-primary);
+}
+
+.section-note a:hover {
+    color: var(--accent-color);
+}
+
 /* Education logos */
 .edu-school {
     display: flex;
@@ -421,6 +438,166 @@ p {
 .project-link:hover {
     color: var(--accent-color);
     gap: 0.8rem;
+}
+
+.projects-subtitle {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 1.5rem;
+}
+
+.projects-grid + .projects-subtitle {
+    margin-top: 4rem;
+}
+
+.projects-grid-compact {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Flagship cards don't lift on hover: the expandable case study makes that jumpy */
+.flagship-card:hover {
+    transform: none;
+}
+
+.flagship-card .project-image {
+    height: 320px;
+    object-position: 50% 0%;
+}
+
+.project-stats {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.project-stats li {
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 0.9rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.project-stats strong {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.pipeline-flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.pipeline-flow span {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 0.35rem 0.7rem;
+}
+
+.pipeline-flow span:not(:last-child)::after {
+    content: '→';
+    color: var(--text-secondary);
+    margin-left: 0.9rem;
+    margin-right: -0.4rem;
+}
+
+.case-study {
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.case-study summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 1rem 0;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.case-study summary::-webkit-details-marker {
+    display: none;
+}
+
+.case-study summary::after {
+    content: '+';
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.case-study[open] summary::after {
+    transform: rotate(45deg);
+}
+
+.case-study summary:hover {
+    color: var(--accent-color);
+}
+
+.case-study-body {
+    padding-bottom: 1.5rem;
+}
+
+.case-study-body h4 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+    margin: 1.75rem 0 0.75rem;
+}
+
+.case-study-body h4:first-child {
+    margin-top: 0.5rem;
+}
+
+.case-study-body ul,
+.case-study-body ol {
+    color: var(--text-secondary);
+    padding-left: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.case-study-body li {
+    margin-bottom: 0.6rem;
+}
+
+.case-study-body strong {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.case-study-body code {
+    font-size: 0.85em;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    color: var(--text-primary);
+}
+
+.project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
 }
 
 /* Contact */
